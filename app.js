@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var { engine } = require('express-handlebars');
-
+var db=require('./config/connection')
 var userRouter = require('./routes/user');
 var adminRouter = require('./routes/admin');
 var fileUpload=require('express-fileupload')
@@ -28,6 +28,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload())
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
+db.connect((err)=>{
+  if (err) console.log("Connection Error"+err)
+  else console.log("Database connected")
+})
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
