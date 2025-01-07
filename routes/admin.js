@@ -42,4 +42,44 @@ router.get('/', function(req, res, next) {
     })
   })
 
+  router.get('/edit-product/:id',async(req,res)=>{
+    let product=await productHelpers.getProductDetails(req.params.id)
+    console.log(product)
+    res.render('admin/edit-product',{product})
+  })
+
+  // router.post('/edit-product/:id',(req,res)=>{
+  //   productHelpers.updateProduct(req.params.id,req.body).then(()=>{
+  //     let image=req.files.image
+  //     let id = req.params.id
+  //     const imagePath = `./public/product-image/${id.toString()}.jpg`;
+  //     image.mv(imagePath)
+  //     res.redirect('/admin')
+  //   })
+  // })
+  router.post('/edit-product/:id', (req, res) => {
+    productHelpers.updateProduct(req.params.id, req.body).then(() => {
+      // Check if image exists
+      if (req.files && req.files.image) {
+        let image = req.files.image;
+        let id = req.params.id;
+        const imagePath = `./public/product-image/${id.toString()}.jpg`;
+  
+        // Move the image to the desired path
+        image.mv(imagePath, (err) => {
+          if (err) {
+            console.log(err);
+            res.status(500).send('Error uploading image');
+          } else {
+            console.log('Image uploaded successfully');
+          }
+        });
+      }
+      res.redirect('/admin');
+    }).catch((err) => {
+      console.log('Error updating product:', err);
+      res.status(500).send('Error updating product');
+    });
+  });
+
 module.exports = router;

@@ -1,8 +1,9 @@
 var db = require('../config/connection')
 var collection=require('../config/collections');
 var objectId=require("mongodb").ObjectId
-const { reject } = require('promise');
+const { reject, resolve } = require('promise');
 const { ObjectId } = require('mongodb');
+const { response } = require('express');
 module.exports={
 
     addProduct:(product,callback)=>{
@@ -26,6 +27,28 @@ module.exports={
                 reject(err);
             });
         });
+    },
+    getProductDetails:(proId)=>{
+        return new Promise((resolve,reject)=>{
+            db.get().collection(collection.PRODUCT_COLLECTION).findOne({_id:new objectId(proId)}).then((product)=>{
+                resolve(product)
+            })
+        })
+    },
+    updateProduct:(proId,proDetails)=>{
+        return new Promise((resolve,reject)=>{
+            db.get().collection(collection.PRODUCT_COLLECTION).updateOne({_id:new objectId(proId)},{
+                $set: {
+                    name:proDetails.name, // Match form field names (e.g. 'name' from the form)
+                    description:proDetails.description, // Same here for description
+                    price:proDetails.price,
+                    category:proDetails.category
+                }
+            }
+        ).then((response) => {
+            resolve(response)
+            })
+        })
     }
     
 }
